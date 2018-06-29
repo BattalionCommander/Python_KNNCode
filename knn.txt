@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn import neighbors, datasets
+from matplotlib.colors import ListedColormap
+# 创建颜色集
+cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
+cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
+
+# 导入数据进行处理
+iris = datasets.load_iris()
+X = iris.data[:, :2]
+y = iris.target
+x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+h = .02
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+for weights in ['uniform', 'distance']:
+
+    k = 15
+    # 创建一个KNN分类器，设置K值和投票方式，并进行训练
+    clf = neighbors.KNeighborsClassifier(n_neighbors=k, weights=weights)
+    clf.fit(X, y)
+    
+    #用训练好的KNN分类器去预测结果
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    #函数将预测结果Z绘制在图像上    
+    plt.figure()
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+    # 画出训练点
+    plt.scatter(X[:, 0], X[:, 1], c=y, marker='o', cmap=cmap_bold, edgecolor='k', s=40)
+
+    # 设置坐标轴
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+    plt.xlabel(u'Sepal_Length')
+    plt.ylabel(u'Sepal_Width')
+
+    #生成图片展示
+    plt.show()
